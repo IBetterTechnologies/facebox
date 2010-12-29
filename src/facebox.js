@@ -122,6 +122,7 @@
       $(document).trigger('beforeReveal.facebox')
       if (klass) $('#facebox .content').addClass(klass)
       $('#facebox .content').append(data)
+      $(window).trigger('resizeStart.facebox')
       $('#facebox .loading').remove()
       $('#facebox .body').children().fadeIn('normal')
       // Bug in Chrome doesn't calculate outerWidth correctly until milliseconds after we've
@@ -146,6 +147,19 @@
     if ($(this).length == 0) return
 
     init(settings)
+
+    function resizeHandler(now) {
+	   if (now) {
+	     resizeFaceboxImage()
+	     return
+	   }
+       var resizeTimer
+       clearTimeout(resizeTimer)
+       resizeTimer = setTimeout(resizeFaceboxImage, 1)
+    }
+
+    $(window).resize(function() { resizeHandler(false) });
+    $(window).bind('resizeStart.facebox', function() { resizeHandler(true) });
 
     function clickHandler() {
       $.facebox.loading(true)
@@ -260,6 +274,12 @@
       $.facebox.reveal('<div class="image"><img src="' + image.src + '" /></div>', klass)
     }
     image.src = href
+  }
+
+  function resizeFaceboxImage() {
+    $('#facebox .image img').css('max-width', $(window).width() * 0.95)
+    $('#facebox .image img').css('max-height', getPageHeight() * 0.75)
+    $('#facebox').css('left', ($(window).width() - $('#facebox').outerWidth()) / 2)
   }
 
   function fillFaceboxFromAjax(href, klass) {
