@@ -124,7 +124,11 @@
       $('#facebox .content').append(data)
       $('#facebox .loading').remove()
       $('#facebox .body').children().fadeIn('normal')
-      $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
+      // Bug in Chrome doesn't calculate outerWidth correctly until milliseconds after we've
+      // faded in the div.
+      setTimeout(function() {
+        $('#facebox').css('left', ($(window).width() - $('#facebox').outerWidth()) / 2)
+      }, 1)
       $(document).trigger('reveal.facebox').trigger('afterReveal.facebox')
     },
 
